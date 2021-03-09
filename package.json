@@ -1,0 +1,16 @@
+{
+  "name": "spotify-cli-downloader",
+  "version": "1.0.0",
+  "description": "To download spotify playlist in mp3 format",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shubham Rawat",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "progress": "^2.0.3",
+    "puppeteer": "^8.0.0"
+  }
+}
