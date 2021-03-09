@@ -2,7 +2,7 @@
   "name": "spotify-cli-downloader",
   "version": "1.0.0",
   "description": "To download spotify playlist in mp3 format",
-  "main": "script.js",
+  "main": "downloader.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

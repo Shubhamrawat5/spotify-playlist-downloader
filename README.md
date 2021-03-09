@@ -8,7 +8,7 @@
 
 This uses puppeteer to extract spotify playlist info so it'll download chromium (150-200mb)
 
-4. edit playlist url variable and set your playlist link in "spotify.js" file [line 2]
+4. edit playlist url variable and set your playlist link in "downloader.js" file [line 5]
 
 5. node downloader.js
 

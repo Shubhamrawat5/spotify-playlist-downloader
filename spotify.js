@@ -1,6 +1,4 @@
 const puppeteer = require("puppeteer");
-url =
-  "https://open.spotify.com/playlist/4hHXVHvGmhllQFQFZ9Ki6G?si=K5aryqfKSV6r__2EtvGakw&nd=1&nd=1";
 
 let playlistUser, playlistName;
 let songInfoArray = [];
@@ -98,7 +96,7 @@ let getPlaylistInfo = async (page) => {
   // await getPlaylistName(page);
 };
 
-module.exports.getPlaylist = async () => {
+module.exports.getPlaylist = async (url) => {
   const browser = await puppeteer.launch({ headless: true, devtools: false });
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 1450 });

@@ -1,3 +1,5 @@
 node_modules/
 .vscode/
 songs/
+playlist-info.txt
+test.js

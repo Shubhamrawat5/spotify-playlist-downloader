@@ -2,6 +2,8 @@ const fs = require("fs");
 var ProgressBar = require("progress");
 const axios = require("axios");
 
+url =
+  "https://open.spotify.com/playlist/4hHXVHvGmhllQFQFZ9Ki6G?si=K5aryqfKSV6r__2EtvGakw&nd=1&nd=1";
 const INFO_URL = "http://slider.kz/vk_auth.php?q=";
 const DOWNLOAD_URL = "http://slider.kz/download/";
 let index = -1;
@@ -70,6 +72,7 @@ const getURL = async (song, singer) => {
     /\?|<|>|\*|"|:|\||\/|\\/g,
     ""
   ); //removing special characters which are not allowed in file name
+  // console.log(link);
   download(songName, link);
 };
 
@@ -103,16 +106,43 @@ const start = () => {
   startDownloading();
 };
 
-playlist.getPlaylist().then((res) => {
-  if (res === "Some Error") {
-    //wrong url
-    console.log(
-      "Error: maybe the url you inserted is not of spotify playlist or check your connection!"
-    );
-    return;
-  }
-  songsList = res.songs;
-  total = res.total;
-  // console.log("Total songs:" + total);
+const fileName = "playlist-info.txt";
+const path = "./" + fileName;
+let songPlaylistObj;
+if (fs.existsSync(path)) {
+  console.log(
+    "\nPLAYLIST INFO ALREADY EXIST PRESENT LOCALLY ! IF PLAYLIST HAVE SOME CHANGES THEN DELETE THE playlist-info.txt FILE"
+  );
+  console.log("READING PLAYLIST INFO FROM FILE..\n");
+  const data = fs.readFileSync(fileName, { encoding: "utf8", flag: "r" });
+  songPlaylistObj = JSON.parse(data);
+  songsList = songPlaylistObj.songs;
+  total = songPlaylistObj.total;
+  console.log("TOTAL SONGS: " + total);
   start();
-});
+} else {
+  console.log("\nPLAYLIST INFO DOES NOT EXIST LOCALLY !");
+  console.log(
+    "SAVING PLAYLIST INFO IN FILE.. SO THAT NEXT TIME PLAYLIST INFO WON'T BE EXTRACTED AGAIN!"
+  );
+  playlist.getPlaylist(url).then((res) => {
+    // if (res === "Some Error") {
+    //   //wrong url
+    //   console.log(
+    //     "Error: maybe the url you inserted is not of spotify playlist or check your connection!"
+    //   );
+    //   return;
+    // }
+
+    songPlaylistObj = res;
+    songPlaylistObj.url = url; //saving playlist url also
+    fs.writeFileSync(fileName, JSON.stringify(res), (err) => {
+      if (err) throw err;
+      console.log("Saved playlist info locally in playlist-info.txt!");
+    });
+    // console.log("Total songs:" + total);
+    songsList = songPlaylistObj.songs;
+    total = songPlaylistObj.total;
+    start();
+  });
+}
