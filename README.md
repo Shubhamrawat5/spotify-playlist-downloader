@@ -22,4 +22,6 @@ This uses puppeteer to extract spotify playlist info so it'll download chromium 
 
 ### Screenshots
 
+
+<img src = "https://i.ibb.co/ScGmnj3/download-spotify-to-mp3.png" width="350"/>
 <img src = "https://i.ibb.co/0MfLvNy/spo.png" width="800"/>
