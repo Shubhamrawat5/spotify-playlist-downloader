@@ -4,8 +4,8 @@ const axios = require("axios");
 
 url =
   "https://open.spotify.com/playlist/4hHXVHvGmhllQFQFZ9Ki6G?si=K5aryqfKSV6r__2EtvGakw&nd=1&nd=1";
-const INFO_URL = "http://slider.kz/vk_auth.php?q=";
-const DOWNLOAD_URL = "http://slider.kz/download/";
+const INFO_URL = "https://slider.kz/vk_auth.php?q=";
+const DOWNLOAD_URL = "https://slider.kz/download/";
 let index = -1;
 let songsList = [];
 let total = 0;
