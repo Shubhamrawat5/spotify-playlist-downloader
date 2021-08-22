@@ -2,8 +2,8 @@ const fs = require("fs");
 var ProgressBar = require("progress");
 const axios = require("axios");
 
-url =
-  "https://open.spotify.com/playlist/4hHXVHvGmhllQFQFZ9Ki6G?si=K5aryqfKSV6r__2EtvGakw&nd=1&nd=1";
+const url =
+  "https://open.spotify.com/playlist/08khTGVkE7JRDYAoS0KmKb?si=tEdvqhnNQKyolBOHTGKdIA&utm_source=copy-link&dl_branch=1&nd=1";
 const INFO_URL = "https://slider.kz/vk_auth.php?q=";
 const DOWNLOAD_URL = "https://slider.kz/download/";
 let index = -1;
@@ -68,10 +68,10 @@ const getURL = async (song, singer) => {
   link = encodeURI(link); //to replace unescaped characters from link
 
   let songName = track.tit_art;
-  songName = songName = songName = songName.replace(
-    /\?|<|>|\*|"|:|\||\/|\\/g,
-    ""
-  ); //removing special characters which are not allowed in file name
+  songName =
+    songName =
+    songName =
+      songName.replace(/\?|<|>|\*|"|:|\||\/|\\/g, ""); //removing special characters which are not allowed in file name
   // console.log(link);
   download(songName, link);
 };
