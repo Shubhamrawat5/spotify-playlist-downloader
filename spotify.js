@@ -39,18 +39,18 @@ let getPlaylistList = async (page) => {
     )[2].innerText;
 
     //extracting total song from html innerText
-    console.log("extracting total song from html innerText");
+    // console.log("extracting total song from html innerText");
     let totalSongs = Number(
       totalSongsHtmlInfo.slice(0, totalSongsHtmlInfo.search("songs") - 1)
     );
 
     let SongElementArray = new Array(totalSongs).fill(0); //creating array of size of total songs to store all songs info
 
-    console.log("STARTING TO FIND SONGS FROM WEBPAGE: ", totalSongs);
+    // console.log("STARTING TO FIND SONGS FROM WEBPAGE: ", totalSongs);
     let count = 0;
     while (true) {
       count += 1;
-      console.log("WHILE TIMES: " + String(count));
+      // console.log("WHILE TIMES: " + String(count));
       let currentViewSongElementList =
         document.querySelectorAll("div[role='row']"); //gives nodeList of current view
       currentViewSongElementList = Array.from(currentViewSongElementList); //convert nodeList to Array
@@ -85,7 +85,7 @@ let getPlaylistList = async (page) => {
     }
 
     let songInfoArray = [];
-    console.log(SongElementArray);
+    // console.log(SongElementArray);
     SongElementArray.forEach((element) => {
       let name = element.querySelector("._gvEBguxvbSruOQCkWrz").innerText;
       let singer = element.querySelector(".lm4ptx0mVHQ1OEgJR6R5 ").innerText;

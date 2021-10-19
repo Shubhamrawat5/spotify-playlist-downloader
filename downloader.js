@@ -1,9 +1,14 @@
 const fs = require("fs");
-var ProgressBar = require("progress");
+const ProgressBar = require("progress");
 const axios = require("axios");
 
+const request = require("request");
+const NodeID3 = require("node-id3");
+const itunesAPI = require("node-itunes-search");
+
+// "https://open.spotify.com/playlist/08khTGVkE7JRDYAoS0KmKb?si=tEdvqhnNQKyolBOHTGKdIA&utm_source=copy-link&dl_branch=1&nd=1";
 const url =
-  "https://open.spotify.com/playlist/08khTGVkE7JRDYAoS0KmKb?si=tEdvqhnNQKyolBOHTGKdIA&utm_source=copy-link&dl_branch=1&nd=1";
+  "https://open.spotify.com/playlist/6erqXmUhndc9DmQBMsImyY?si=tdOMvOQdR6KAZy9916kXcg&utm_source=copy-link&dl_branch=1&nd=1";
 const INFO_URL = "https://slider.kz/vk_auth.php?q=";
 const DOWNLOAD_URL = "https://slider.kz/download/";
 let index = -1;
@@ -11,39 +16,129 @@ let songsList = [];
 let total = 0;
 let notFound = [];
 
-const download = async (song, url) => {
-  let numb = index + 1;
-  console.log(`(${numb}/${total}) Starting download: ${song}`);
-  const { data, headers } = await axios({
-    method: "GET",
-    url: url,
-    responseType: "stream",
-  });
+const download = async (song, url, song_name, singer_names) => {
+  try {
+    let numb = index + 1;
+    console.log(`(${numb}/${total}) Starting download: ${song}`);
+    const { data, headers } = await axios({
+      method: "GET",
+      url: url,
+      responseType: "stream",
+    });
 
-  //for progress bar...
-  const totalLength = headers["content-length"];
-  const progressBar = new ProgressBar("-> downloading [:bar] :percent :etas", {
-    width: 40,
-    complete: "=",
-    incomplete: " ",
-    renderThrottle: 1,
-    total: parseInt(totalLength),
-  });
+    //for progress bar...
+    const totalLength = headers["content-length"];
+    const progressBar = new ProgressBar(
+      "-> downloading [:bar] :percent :etas",
+      {
+        width: 40,
+        complete: "=",
+        incomplete: " ",
+        renderThrottle: 1,
+        total: parseInt(totalLength),
+      }
+    );
 
-  data.on("data", (chunk) => progressBar.tick(chunk.length));
-  data.on("end", () => {
-    console.log("DOWNLOADED!");
+    data.on("data", (chunk) => progressBar.tick(chunk.length));
+    data.on("end", () => {
+      singer_names = singer_names.replace(/\s{2,10}/g, "");
+      console.log("DOWNLOADED!");
+      const filepath = `${__dirname}/songs/${song}.mp3`;
+      //Replace all connectives by a simple ','
+      singer_names = singer_names.replace(" and ", ", ");
+      singer_names = singer_names.replace(" et ", ", ");
+      singer_names = singer_names.replace(" und ", ", ");
+      singer_names = singer_names.replace(" & ", ", ");
+      //Search track informations using the Itunes library
+      const searchOptions = new itunesAPI.ItunesSearchOptions({
+        term: song, // All searches require a single string query.
+
+        limit: 1, // An optional maximum number of returned results may be specified.
+      });
+      //Use the result to extract tags
+      itunesAPI.searchItunes(searchOptions).then((result) => {
+        try {
+          // Get all the tags and cover art of the track using node-itunes-search and write them with node-id3
+          let maxres = result.results[0]["artworkUrl100"].replace(
+            "100x100",
+            "3000x3000"
+          );
+          let year = result.results[0]["releaseDate"].substring(0, 4);
+          let genre = result.results[0]["primaryGenreName"].replace(
+            /\?|<|>|\*|"|:|\||\/|\\/g,
+            ""
+          );
+          let trackNumber = result.results[0]["trackNumber"];
+          let trackCount = result.results[0]["trackCount"];
+          trackNumber = trackNumber + "/" + trackCount;
+          let album = result.results[0]["collectionName"].replace(
+            /\?|<|>|\*|"|:|\||\/|\\/g,
+            ""
+          );
+          //console.log(genre);
+          //console.log(year);
+          //console.log(trackNumber);
+          //console.log(album);
+          //console.log(maxres);
+          let query_artwork_file = song + ".jpg";
+          download_artwork(maxres, query_artwork_file, function () {
+            //console.log('Artwork downloaded');
+            const tags = {
+              TALB: album,
+              title: song_name,
+              artist: singer_names,
+              APIC: query_artwork_file,
+              year: year,
+              trackNumber: trackNumber,
+              genre: genre,
+            };
+            //console.log(tags);
+            const success = NodeID3.write(tags, filepath);
+            console.log("WRITTEN TAGS");
+            try {
+              fs.unlinkSync(query_artwork_file);
+              //file removed
+            } catch (err) {
+              console.error(err);
+            }
+            startDownloading();
+            //for next song!
+          });
+        } catch {
+          console.log("Full tags not found for " + song_name);
+          const tags = {
+            title: song_name,
+            artist: singer_names,
+          };
+          //console.log(tags);
+          const success = NodeID3.write(tags, filepath);
+          console.log("WRITTEN TAGS (Only artist name and track title)");
+          startDownloading();
+        }
+      });
+    });
+
+    //for saving in file...
+    data.pipe(fs.createWriteStream(`${__dirname}/songs/${song}.mp3`));
+  } catch {
+    console.log("some error came!");
     startDownloading(); //for next song!
-  });
+  }
+};
 
-  //for saving in file...
-  data.pipe(fs.createWriteStream(`${__dirname}/songs/${song}.mp3`));
+const download_artwork = function (uri, filename, callback) {
+  request.head(uri, function (err, res, body) {
+    //console.log('content-type:', res.headers['content-type']);
+    //console.log('content-length:', res.headers['content-length']);
+
+    request(uri).pipe(fs.createWriteStream(filename)).on("close", callback);
+  });
 };
 
 const getURL = async (song, singer) => {
-  let query = (song + "%20" + singer).replace(/\s/g, "%20");
+  let query = (singer + "%20" + song).replace(/\s/g, "%20");
   // console.log(INFO_URL + query);
-  const { data } = await axios.get(INFO_URL + query);
+  const { data } = await axios.get(encodeURI(INFO_URL + query));
 
   // when no result then [{}] is returned so length is always 1, when 1 result then [{id:"",etc:""}]
   if (!data["audios"][""][0].id) {
@@ -57,7 +152,7 @@ const getURL = async (song, singer) => {
   //avoid remix,revisited,mix
   let i = 0;
   let track = data["audios"][""][i];
-  while (/remix|revisited|mix/i.test(track.tit_art)) {
+  while (/remix|revisited|reverb|mix/i.test(track.tit_art)) {
     i += 1;
     track = data["audios"][""][i];
   }
@@ -66,7 +161,8 @@ const getURL = async (song, singer) => {
     track = data["audios"][""][0];
   }
 
-  if (fs.existsSync(__dirname + "/songs/" + track.tit_art + ".mp3")) {
+  let songName = track.tit_art.replace(/\?|<|>|\*|"|:|\||\/|\\/g, ""); //removing special characters which are not allowed in file name
+  if (fs.existsSync(__dirname + "/songs/" + songName + ".mp3")) {
     let numb = index + 1;
     console.log(
       "(" + numb + "/" + total + ") - Song already present!!!!! " + song
@@ -74,20 +170,15 @@ const getURL = async (song, singer) => {
     startDownloading(); //next song
     return;
   }
+
   let link = DOWNLOAD_URL + track.id + "/";
   link = link + track.duration + "/";
   link = link + track.url + "/";
-  link = link + track.tit_art + ".mp3" + "?extra=";
+  link = link + songName + ".mp3" + "?extra=";
   link = link + track.extra;
   link = encodeURI(link); //to replace unescaped characters from link
 
-  let songName = track.tit_art;
-  songName =
-    songName =
-    songName =
-      songName.replace(/\?|<|>|\*|"|:|\||\/|\\/g, ""); //removing special characters which are not allowed in file name
-  // console.log(link);
-  download(songName, link);
+  download(songName, link, song, singer);
 };
 
 const startDownloading = () => {
