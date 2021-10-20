@@ -51,8 +51,7 @@ const download = async (song, url, song_name, singer_names) => {
       singer_names = singer_names.replace(" & ", ", ");
       //Search track informations using the Itunes library
       const searchOptions = new itunesAPI.ItunesSearchOptions({
-        term: song, // All searches require a single string query.
-
+        term: encodeURI(song), // All searches require a single string query and remove unescaped characters
         limit: 1, // An optional maximum number of returned results may be specified.
       });
       //Use the result to extract tags
