@@ -1,27 +1,26 @@
-# spotify-playlist-downloader in node js
+# spotify-playlist-downloader 🎵
 
-1. clone repo
 
-2. open the repo locally and open terminal
+1. Open cmd/console
+2. Clone repo by `git clone git@github.com:Shubhamrawat5/spotify-playlist-downloader.git`
+3. Open directory by `cd spotify-playlist-downloader`
+4. Run `npm install` to install all dependencies
 
-3. npm install
+> This uses puppeteer to extract spotify playlist info so it'll download chromium (150-200mb)
 
-This uses puppeteer to extract spotify playlist info so it'll download chromium (150-200mb)
+5. Now edit playlist url variable and set your playlist link in file `downloader.js [line 5]`
+6. Run `node app.js`
 
-4. edit playlist url variable and set your playlist link in "downloader.js" file [line 5]
+- Now a folder named "songs" will be created.
 
-5. node downloader.js
+- Playlist info will be extract and all the matching songs will start donwloading!
 
--> Now a song folder will be created in the current local repo folder.
+- If by chance you stop the script in between, then no worries as if song is already downloaded then next time it won't be downloaded again!
 
--> If by chance you stop the program in between so no worries as if song is already downloaded then next time it wont be donwloaded again!
+- Also there is 5% chance that song's some remix or different same name song will get downloaded...
 
--> Playlist info will be extract and all the matching songs will start donwloading!
 
--> Also there is 5% chance that song's some remix or different same name song will get downloaded...
-
-### Screenshots
-
+### Screenshots 🚀
 
 <img src = "https://i.ibb.co/ScGmnj3/download-spotify-to-mp3.png" width="350"/>
 <img src = "https://i.ibb.co/0MfLvNy/spo.png" width="800"/>
