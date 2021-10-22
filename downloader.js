@@ -16,7 +16,7 @@ let songsList = [];
 let total = 0;
 let notFound = [];
 
-const download = async (song, url, song_name, singer_names) => {
+const download = async (song, url, song_name, singer_names, query_metadata) => {
   try {
     let numb = index + 1;
     console.log(`(${numb}/${total}) Starting download: ${song}`);
@@ -44,14 +44,16 @@ const download = async (song, url, song_name, singer_names) => {
       singer_names = singer_names.replace(/\s{2,10}/g, "");
       console.log("DOWNLOADED!");
       const filepath = `${__dirname}/songs/${song}.mp3`;
+      //TAGS PART by @antoinebollengier
       //Replace all connectives by a simple ','
       singer_names = singer_names.replace(" and ", ", ");
       singer_names = singer_names.replace(" et ", ", ");
       singer_names = singer_names.replace(" und ", ", ");
       singer_names = singer_names.replace(" & ", ", ");
       //Search track informations using the Itunes library
+      console.log(query_metadata);
       const searchOptions = new itunesAPI.ItunesSearchOptions({
-        term: encodeURI(song), // All searches require a single string query and remove unescaped characters
+        term: encodeURI(query_metadata), // All searches require a single string query and remove unescaped characters
         limit: 1, // An optional maximum number of returned results may be specified.
       });
       //Use the result to extract tags
@@ -134,7 +136,7 @@ const download_artwork = function (uri, filename, callback) {
   });
 };
 
-const getURL = async (song, singer) => {
+const getURL = async (song, singer, album) => {
   let query = (singer + "%20" + song).replace(/\s/g, "%20");
   // console.log(INFO_URL + query);
   const { data } = await axios.get(encodeURI(INFO_URL + query));
@@ -176,8 +178,8 @@ const getURL = async (song, singer) => {
   link = link + songName + ".mp3" + "?extra=";
   link = link + track.extra;
   link = encodeURI(link); //to replace unescaped characters from link
-
-  download(songName, link, song, singer);
+  query_metadata = track.tit_art + ' ' + album;
+  download(songName, link, song, singer, query_metadata);
 };
 
 const startDownloading = () => {
@@ -195,7 +197,8 @@ const startDownloading = () => {
   }
   let song = songsList[index].name;
   let singer = songsList[index].singer;
-  getURL(song, singer);
+  let album = songsList[index].album;
+  getURL(song, singer, album);
 };
 
 console.log("STARTING....");
