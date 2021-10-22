@@ -35,7 +35,7 @@ let getPlaylistList = async (page) => {
   console.log("\nEXTRACTING TOTAL SONGS...");
   songInfoArray = await page.evaluate(async () => {
     let totalSongsHtmlInfo = document.querySelectorAll(
-      "._qbBHRjaGvaZoEZDZ_IY"
+      ".ax_46rB4EOK3hF__KEMO"
     )[2].innerText;
 
     //extracting total song from html innerText
