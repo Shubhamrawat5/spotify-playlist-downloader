@@ -9,7 +9,7 @@ const minimist = require('minimist');
 const { exec } = require("child_process");
 // "https://open.spotify.com/playlist/08khTGVkE7JRDYAoS0KmKb?si=tEdvqhnNQKyolBOHTGKdIA&utm_source=copy-link&dl_branch=1&nd=1";
 const url =
-  "";
+  ""; // Insert playlist URL here
 const INFO_URL = "https://slider.kz/vk_auth.php?q=";
 const DOWNLOAD_URL = "https://slider.kz/download/";
 let index = -1;
@@ -109,7 +109,6 @@ const download = async (song, url, song_name, singer_names, query_metadata) => {
       singer_names = singer_names.replace(" und ", ", ");
       singer_names = singer_names.replace(" & ", ", ");
       //Search track informations using the Itunes library
-      console.log(query_metadata);
       const searchOptions = new itunesAPI.ItunesSearchOptions({
         term: encodeURI(query_metadata), // All searches require a single string query and remove unescaped characters
         limit: 1, // An optional maximum number of returned results may be specified.
