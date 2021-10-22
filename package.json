@@ -6,10 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Shubham Rawat",
+  "author": "Shubham Rawat, Antoine Bollengier",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
+    "child_process": "^1.0.2",
+    "minimist": "^1.2.5",
     "node-id3": "^0.2.3",
     "node-itunes-search": "^1.2.2",
     "progress": "^2.0.3",
