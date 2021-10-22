@@ -5,17 +5,75 @@ const axios = require("axios");
 const request = require("request");
 const NodeID3 = require("node-id3");
 const itunesAPI = require("node-itunes-search");
-
+const minimist = require('minimist');
+const { exec } = require("child_process");
 // "https://open.spotify.com/playlist/08khTGVkE7JRDYAoS0KmKb?si=tEdvqhnNQKyolBOHTGKdIA&utm_source=copy-link&dl_branch=1&nd=1";
 const url =
-  "https://open.spotify.com/playlist/6erqXmUhndc9DmQBMsImyY?si=tdOMvOQdR6KAZy9916kXcg&utm_source=copy-link&dl_branch=1&nd=1";
+  "";
 const INFO_URL = "https://slider.kz/vk_auth.php?q=";
 const DOWNLOAD_URL = "https://slider.kz/download/";
 let index = -1;
 let songsList = [];
 let total = 0;
 let notFound = [];
+let lyricsFound = [];
+let songsFound = [];
+let args = minimist(process.argv.slice(2), {
+    default: {
+        h: false,
+        l: false,
+        p: false
+    },
+});
+if (args.h == true){
+  console.log("HELP \n -h : Shows current message\n -p Playlist URL\n -l : Won't use python script to fetch lyrics. ");
+  process.exit()
+}
+function get_lyrics (){
+for (let songs of songsFound) {
+  lyricsok = false;
+  let artist1 = songs.artist;
+  let songname1 = songs.songname;
+  let album1 = songs.album;
+  var split_artists = artist1.split(", "); // Separate differents artists : for Riton, Kah-Lo it will search for Riton, Kah-Lo - Riton - Kah-Lo
+  if (split_artists.length !== 1){
+    split_artists.splice(2, 0, artist1);
+  }
+for (let i = 0; i < split_artists.length; i++) {
+    exec("python3 searcher.py '"+split_artists[i]+"' '"+songname1+"' '"+artist1+"'", (error, stdout, stderr) => {
+    if (error) {
+        console.log(`error: ${error.message}`);
+        lyricsok = false;
+        return;
+    }
+    if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        lyricsok = false;
+        return;
+    }
+    if (`${stdout}` == 'LYRICS NOT FOUND\n'){
+        //console.log('LYRICS NOT FOUND')
+        lyricsok = false;
+    }
+    else{
+        if (lyricsok == false){
+        console.log('LYRICS FOUNDS FOR : ' + artist1 + ' - ' + songname1)
+        //console.log(singers + ' - ' + songname + '.lrc')
+        lyricsok = true;
+        lyricsFound.push({
+          songname: songname1,
+          artist: artist1,
+      });
+        return;
+      }
 
+    }
+
+});
+}
+
+}
+}
 const download = async (song, url, song_name, singer_names, query_metadata) => {
   try {
     let numb = index + 1;
@@ -96,6 +154,10 @@ const download = async (song, url, song_name, singer_names, query_metadata) => {
             //console.log(tags);
             const success = NodeID3.write(tags, filepath);
             console.log("WRITTEN TAGS");
+                      songsFound.push({
+          songname: song_name,
+          artist: singer_names,
+      });
             try {
               fs.unlinkSync(query_artwork_file);
               //file removed
@@ -114,6 +176,10 @@ const download = async (song, url, song_name, singer_names, query_metadata) => {
           //console.log(tags);
           const success = NodeID3.write(tags, filepath);
           console.log("WRITTEN TAGS (Only artist name and track title)");
+                    songsFound.push({
+          songname: song_name,
+          artist: singer_names,
+      });
           startDownloading();
         }
       });
@@ -193,6 +259,15 @@ const startDownloading = () => {
       i += 1;
     }
     if (i === 1) console.log("None!");
+    if (args.p == false){
+    console.log("SEARCHING FOR LYRICS...");
+    get_lyrics();
+    return;
+  }
+  if (args.p == true){
+    console.log("LYRICS SEARCH DISABLE");
+    return;
+  }
     return;
   }
   let song = songsList[index].name;
