@@ -89,9 +89,11 @@ let getPlaylistList = async (page) => {
     SongElementArray.forEach((element) => {
       let name = element.querySelector("._gvEBguxvbSruOQCkWrz").innerText;
       let singer = element.querySelector(".lm4ptx0mVHQ1OEgJR6R5 ").innerText;
+      let album = element.querySelector(".xih1EsUKc30BvZ2zKzAf").innerText;
       songInfoArray.push({
         name,
         singer,
+        album,
       });
     });
     return songInfoArray;
