@@ -34,9 +34,7 @@ let getPlaylistName = async (page) => {
 let getPlaylistList = async (page) => {
   console.log("\nEXTRACTING TOTAL SONGS...");
   songInfoArray = await page.evaluate(async () => {
-    let totalSongsHtmlInfo = document.querySelectorAll(
-      "._qbBHRjaGvaZoEZDZ_IY"
-    )[2].innerText;
+let totalSongsHtmlInfo = document.querySelectorAll("._qbBHRjaGvaZoEZDZ_IY")[ document.querySelectorAll("._qbBHRjaGvaZoEZDZ_IY").length - 1 ].innerText;
 
     //extracting total song from html innerText
     // console.log("extracting total song from html innerText");
@@ -114,15 +112,18 @@ module.exports.getPlaylist = async (url) => {
   const browser = await puppeteer.launch({ headless: false, devtools: false });
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 1450 });
-  await page.setDefaultNavigationTimeout(0);
+  await page.setDefaultNavigationTimeout();
+  await page.setExtraHTTPHeaders({
+    'Accept-Language': 'en'
+});
   console.log("opening url.");
   await page.goto(url);
   console.log("opened.");
+  await page.waitForSelector("div[aria-rowindex='2']");
   // await page.waitForSelector(".da0bc4060bb1bdb4abb8e402916af32e-scss");
   // console.log("waiting for 1 seconds to load page.");
-  // await page.waitForTimeout(1000); //10 seconds
-  // console.log("waiting for 1 seconds complete.");
-
+  //await page.waitForTimeout(1000); //10 seconds
+  //console.log("waiting for 1 seconds complete.");
   await getPlaylistInfo(page);
   console.log("TOTAL SONGS: " + songInfoArray.length);
 
@@ -147,3 +148,4 @@ module.exports.getPlaylist = async (url) => {
 //   "https://open.spotify.com/playlist/4hHXVHvGmhllQFQFZ9Ki6G?si=K5aryqfKSV6r__2EtvGakw&nd=1&nd=1";
 
 // getPlaylist(url);
+
