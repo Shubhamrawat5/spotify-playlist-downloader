@@ -42,9 +42,9 @@ def megalobiz(artist, songname):
             print(lrc)
             f.close()
             ok = 1
-            print(filename_lrc)
             os.system('mkdir -p lyrics')
             os.system("mv '" + filename_lrc + "' 'lyrics/" + b_artist + ' - ' + b_title + '.lrc'+"'")
+            print("lyrics/" + b_artist + ' - ' + b_title + '.lrc')
             exit()
     print('LYRICS NOT FOUND')
 
