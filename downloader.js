@@ -51,9 +51,11 @@ for (let i = 0; i < split_artists.length; i++) {
         lyricsok = false;
         return;
     }
-    if (`${stdout}` == 'LYRICS NOT FOUND\n'){
-        //console.log('LYRICS NOT FOUND')
-        lyricsok = false;
+     if (`${stdout}` == "LYRICS NOT FOUND\n" || `${stdout}` == "LYRICS NOT FOUND\r\n") {
+            console.log(
+              "LYRICS NOT FOUND FOR : " + artist1 + " - " + songname1
+            );
+            lyricsok = false;
     }
     else{
         if (lyricsok == false){
