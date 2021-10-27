@@ -2,6 +2,7 @@ const fs = require("fs");
 const ProgressBar = require("progress");
 const axios = require("axios");
 
+const commandExistsSync = require('command-exists').sync;
 const request = require("request");
 const NodeID3 = require("node-id3");
 const itunesAPI = require("node-itunes-search");
@@ -18,6 +19,11 @@ let total = 0;
 let notFound = [];
 let lyricsFound = [];
 let songsFound = [];
+if (commandExistsSync('python3')) {
+    python_command = 'python3'
+} else {
+    python_command = 'python'
+}
 let args = minimist(process.argv.slice(2), {
     default: {
         h: false,
@@ -40,7 +46,7 @@ for (let songs of songsFound) {
     split_artists.splice(2, 0, artist1);
   }
 for (let i = 0; i < split_artists.length; i++) {
-    exec("python3 searcher.py '"+split_artists[i]+"' '"+songname1+"' '"+artist1+"'", (error, stdout, stderr) => {
+    exec(python_command+"  searcher.py '"+split_artists[i]+"' '"+songname1+"' '"+artist1+"'", (error, stdout, stderr) => {
     if (error) {
         console.log(`error: ${error.message}`);
         lyricsok = false;
