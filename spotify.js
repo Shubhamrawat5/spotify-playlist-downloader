@@ -34,7 +34,7 @@ let getPlaylistName = async (page) => {
 let getPlaylistList = async (page) => {
   console.log("\nEXTRACTING TOTAL SONGS...");
   songInfoArray = await page.evaluate(async () => {
-let totalSongsHtmlInfo = document.querySelectorAll("._qbBHRjaGvaZoEZDZ_IY")[ document.querySelectorAll("._qbBHRjaGvaZoEZDZ_IY").length - 1 ].innerText;
+let totalSongsHtmlInfo = document.querySelectorAll(".Cv3pxwZSbwL_dShdj278")[ document.querySelectorAll(".Cv3pxwZSbwL_dShdj278").length - 1 ].innerText;
 
     //extracting total song from html innerText
     // console.log("extracting total song from html innerText");
@@ -85,9 +85,9 @@ let totalSongsHtmlInfo = document.querySelectorAll("._qbBHRjaGvaZoEZDZ_IY")[ doc
     let songInfoArray = [];
     // console.log(SongElementArray);
     SongElementArray.forEach((element) => {
-      let name = element.querySelector("._gvEBguxvbSruOQCkWrz").innerText;
-      let singer = element.querySelector(".lm4ptx0mVHQ1OEgJR6R5 ").innerText;
-      let album = element.querySelector(".xih1EsUKc30BvZ2zKzAf").innerText;
+      let name = element.querySelector(".eyyspMJ_K_t8mHpLP_kP").innerText;
+      let singer = element.querySelector(".rI54qKbHwvJBDpQ5XHRO").innerText;
+      let album = element.querySelector(".EzoJxzhd4JUR5V3cSlZ_").innerText;
       songInfoArray.push({
         name,
         singer,
