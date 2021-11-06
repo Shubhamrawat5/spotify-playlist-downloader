@@ -7,7 +7,7 @@ let getUserName = async (page) => {
   try {
     console.log("\ngetting username");
     playlistUser = await page.evaluate(async () => {
-      return document.querySelector(".JydatzmGcwHeg2x2zl0Q").innerText;
+      return document.querySelector(".Cv3pxwZSbwL_dShdj278").innerText;
     });
     console.log("# Playlist User: ", playlistUser);
   } catch {
@@ -21,7 +21,7 @@ let getPlaylistName = async (page) => {
   try {
     console.log("\ngetting playlist name");
     playlistName = await page.evaluate(async () => {
-      return document.querySelector(".oStn5XbXP5fETx83AmIj").innerText;
+      return document.querySelector(".U_AdmCe4oCcTEvsjqLFw").innerText;
     });
     console.log("# Playlist Name: ", playlistName);
   } catch {
