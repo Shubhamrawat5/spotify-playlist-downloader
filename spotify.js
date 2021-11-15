@@ -7,7 +7,7 @@ let getUserName = async (page) => {
   try {
     console.log("\ngetting username");
     playlistUser = await page.evaluate(async () => {
-      return document.querySelector(".JydatzmGcwHeg2x2zl0Q").innerText;
+      return document.querySelector(".AezAnkZiU695IkdNqFGt").innerText;
     });
     console.log("# Playlist User: ", playlistUser);
   } catch {
@@ -21,7 +21,7 @@ let getPlaylistName = async (page) => {
   try {
     console.log("\ngetting playlist name");
     playlistName = await page.evaluate(async () => {
-      return document.querySelector(".oStn5XbXP5fETx83AmIj").innerText;
+      return document.querySelector("._meqsRRoQONlQfjhfxzp").innerText;
     });
     console.log("# Playlist Name: ", playlistName);
   } catch {
@@ -34,15 +34,13 @@ let getPlaylistName = async (page) => {
 let getPlaylistList = async (page) => {
   console.log("\nEXTRACTING TOTAL SONGS...");
   songInfoArray = await page.evaluate(async () => {
-    let totalSongsHtmlInfo = document.querySelectorAll(
-      "._qbBHRjaGvaZoEZDZ_IY"
-    )[2].innerText;
+    let totalSongsHtmlInfo = document.querySelectorAll(".Cv3pxwZSbwL_dShdj278")[
+      document.querySelectorAll(".Cv3pxwZSbwL_dShdj278").length - 1
+    ].innerText;
 
     //extracting total song from html innerText
     // console.log("extracting total song from html innerText");
-    let totalSongs = Number(
-      totalSongsHtmlInfo.slice(0, totalSongsHtmlInfo.search("songs") - 1)
-    );
+    let totalSongs = Number(totalSongsHtmlInfo.split(" ")[0]);
 
     let SongElementArray = new Array(totalSongs).fill(0); //creating array of size of total songs to store all songs info
 
@@ -87,8 +85,8 @@ let getPlaylistList = async (page) => {
     let songInfoArray = [];
     // console.log(SongElementArray);
     SongElementArray.forEach((element) => {
-      let name = element.querySelector("._gvEBguxvbSruOQCkWrz").innerText;
-      let singer = element.querySelector(".lm4ptx0mVHQ1OEgJR6R5 ").innerText;
+      let name = element.querySelector(".eyyspMJ_K_t8mHpLP_kP").innerText;
+      let singer = element.querySelector(".rI54qKbHwvJBDpQ5XHRO").innerText;
       songInfoArray.push({
         name,
         singer,
@@ -116,10 +114,10 @@ module.exports.getPlaylist = async (url) => {
   console.log("opening url.");
   await page.goto(url);
   console.log("opened.");
-  // await page.waitForSelector(".da0bc4060bb1bdb4abb8e402916af32e-scss");
-  // console.log("waiting for 1 seconds to load page.");
-  // await page.waitForTimeout(1000); //10 seconds
-  // console.log("waiting for 1 seconds complete.");
+  // await page.waitForSelector("._cx_B0JpuGl6cJE7YqU1");
+  console.log("waiting for 10 seconds to load page.");
+  await page.waitForTimeout(1000 * 10); //10 seconds
+  console.log("waiting for 10 seconds complete.");
 
   await getPlaylistInfo(page);
   console.log("TOTAL SONGS: " + songInfoArray.length);
