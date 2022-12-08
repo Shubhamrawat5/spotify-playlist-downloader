@@ -1,7 +1,7 @@
 # spotify-playlist-downloader 🎵
 
 1. Open cmd/console
-2. Clone repo by `git clone git@github.com:Shubhamrawat5/spotify-playlist-downloader.git`
+2. Clone repo by `git clone https://github.com/Shubhamrawat5/spotify-playlist-downloader.git`
 3. Open directory by `cd spotify-playlist-downloader`
 4. Run `npm install` to install all dependencies
 
@@ -22,3 +22,8 @@
 
 <img src = "https://i.ibb.co/ScGmnj3/download-spotify-to-mp3.png" width="350"/>
 <img src = "https://i.ibb.co/0MfLvNy/spo.png" width="800"/>
+
+### Contribute & Issues 🚀
+
+- Feel free to help to improve this tool.
+- Inform if you face any problem.
