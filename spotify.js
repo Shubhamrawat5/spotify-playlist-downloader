@@ -107,7 +107,7 @@ let getPlaylistInfo = async (page) => {
 // const getPlaylist = async (url) => {
 module.exports.getPlaylist = async (url) => {
   console.log("opening Chromium.");
-  const browser = await puppeteer.launch({ headless: false, devtools: false });
+  const browser = await puppeteer.launch({ headless: true, devtools: false });
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 1450 });
   await page.setDefaultNavigationTimeout(0);

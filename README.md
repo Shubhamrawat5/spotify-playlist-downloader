@@ -1,6 +1,5 @@
 # spotify-playlist-downloader 🎵
 
-
 1. Open cmd/console
 2. Clone repo by `git clone git@github.com:Shubhamrawat5/spotify-playlist-downloader.git`
 3. Open directory by `cd spotify-playlist-downloader`
@@ -8,7 +7,7 @@
 
 > This uses puppeteer to extract spotify playlist info so it'll download chromium (150-200mb)
 
-5. Now edit playlist url variable and set your playlist link in file `downloader.js [line 5]`
+5. Now edit playlist url variable and set your playlist link in file `app.js [line 10]`
 6. Run `node app.js`
 
 - Now a folder named "songs" will be created.
@@ -18,7 +17,6 @@
 - If by chance you stop the script in between, then no worries as if song is already downloaded then next time it won't be downloaded again!
 
 - Also there is 5% chance that song's some remix or different same name song will get downloaded...
-
 
 ### Screenshots 🚀
 
