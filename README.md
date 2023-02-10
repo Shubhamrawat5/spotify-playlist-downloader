@@ -7,8 +7,9 @@
 
 > This uses puppeteer to extract spotify playlist info so it'll download chromium (150-200mb)
 
-5. Now edit playlist url variable and set your playlist link in file `app.js [line 10]`
-6. Run `node app.js`
+5. Run `node app.js`
+
+6. You'll be asked for your URL, paste it and then press Enter to continue
 
 - Now a folder named "songs" will be created.
 
