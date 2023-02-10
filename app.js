@@ -1,14 +1,13 @@
 const fs = require("fs");
 const ProgressBar = require("progress");
 const axios = require("axios");
-
+const prompt = require("prompt-sync");
 const request = require("request");
 const NodeID3 = require("node-id3");
 const itunesAPI = require("node-itunes-search");
 
 // "https://open.spotify.com/playlist/08khTGVkE7JRDYAoS0KmKb?si=tEdvqhnNQKyolBOHTGKdIA&utm_source=copy-link&dl_branch=1&nd=1";
-const url =
-  "https://open.spotify.com/playlist/6erqXmUhndc9DmQBMsImyY?si=tdOMvOQdR6KAZy9916kXcg&utm_source=copy-link&dl_branch=1&nd=1";
+const url = prompt('Enter your Spotify playlist link here: '); // this part was added by @MohsenEMX as QoL feature
 const INFO_URL = "https://slider.kz/vk_auth.php?q=";
 const DOWNLOAD_URL = "https://slider.kz/download/";
 let index = -1;
