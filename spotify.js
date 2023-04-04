@@ -7,93 +7,101 @@ let getUserName = async (page) => {
   try {
     console.log("\ngetting username");
     playlistUser = await page.evaluate(async () => {
-      return document.querySelector(".AezAnkZiU695IkdNqFGt").innerText;
+      return document.querySelector('a[data-testid="creator-link"]').innerText;
     });
     console.log("# Playlist User: ", playlistUser);
-  } catch {
-    console.log(
-      "There is a issue with html of webapge. Most probably page didn't load or spotify has changed their html css classes name"
-    );
+  } catch (error) {
+    console.log("There is a issue in getting user name");
+    console.log(error);
   }
 };
-
 let getPlaylistName = async (page) => {
   try {
     console.log("\ngetting playlist name");
     playlistName = await page.evaluate(async () => {
-      return document.querySelector("._meqsRRoQONlQfjhfxzp").innerText;
+      return document.querySelector('span[data-testid="entityTitle"]')
+        .innerText;
     });
     console.log("# Playlist Name: ", playlistName);
-  } catch {
-    console.log(
-      "There is a issue with html of webapge. Most probably page didn't load or spotify has changed their html css classes name"
-    );
+  } catch (error) {
+    console.log("There is a issue in getting playlist name");
+    console.log(error);
   }
 };
 
 let getPlaylistList = async (page) => {
   console.log("\nEXTRACTING TOTAL SONGS...");
-  songInfoArray = await page.evaluate(async () => {
-    let totalSongsHtmlInfo = document.querySelectorAll(".Cv3pxwZSbwL_dShdj278")[
-      document.querySelectorAll(".Cv3pxwZSbwL_dShdj278").length - 1
-    ].innerText;
+  try {
+    songInfoArray = await page.evaluate(async () => {
+      let SongElementArray = []; //creating array to store all songs html element
+      let songInfoArray = []; //creating array to store all songs info
 
-    //extracting total song from html innerText
-    // console.log("extracting total song from html innerText");
-    let totalSongs = Number(totalSongsHtmlInfo.split(" ")[0]);
+      // console.log("STARTING TO FIND SONGS FROM WEBPAGE");
+      let lastElement;
+      while (true) {
+        let currentViewSongElementList =
+          document.querySelectorAll("div[role='row']"); //gives nodeList of current view
+        currentViewSongElementList = Array.from(currentViewSongElementList); //convert nodeList to Array
 
-    let SongElementArray = new Array(totalSongs).fill(0); //creating array of size of total songs to store all songs info
+        let leng = currentViewSongElementList.length;
 
-    // console.log("STARTING TO FIND SONGS FROM WEBPAGE: ", totalSongs);
-    let count = 0;
-    while (true) {
-      count += 1;
-      // console.log("WHILE TIMES: " + String(count));
-      let currentViewSongElementList =
-        document.querySelectorAll("div[role='row']"); //gives nodeList of current view
-      currentViewSongElementList = Array.from(currentViewSongElementList); //convert nodeList to Array
-      currentViewSongElementList.shift(); //removing first element as it is heading always, not of song
+        // console.log(SongElementArray);
+        for (let i = 0; i < leng; ++i) {
+          //element index
+          let songIndex =
+            Number(
+              currentViewSongElementList[i].getAttribute("aria-rowindex")
+            ) - 1;
 
-      let leng = currentViewSongElementList.length;
+          if (SongElementArray.length <= songIndex) {
+            SongElementArray.push(currentViewSongElementList[i]);
+          }
+        }
+        // console.log(SongElementArray);
 
-      //below index are according to web aria-rowindex index
-      //example: total song 100 so aria-rowindex will be 1 to 101 where 1st index is of heading
-      //songs will be aria-rowindex 2 to 101
-      //so in program index will be ((aria-rowindex)-2) => 0 to 99
+        //CHECK IF ALL SONGS ARE ADDED
+        if (lastElement === currentViewSongElementList[leng - 1]) break;
 
-      for (let i = 0; i < leng; ++i) {
-        //element index
-        let aria_row_index = Number(
-          currentViewSongElementList[i].getAttribute("aria-rowindex")
-        );
-        SongElementArray[aria_row_index - 2] = currentViewSongElementList[i];
+        lastElement = currentViewSongElementList[leng - 1]; //last element
+
+        lastElement.scrollIntoView();
+        await new Promise(function (resolve) {
+          setTimeout(resolve, 3000);
+        }); //3 second wait
       }
 
-      //last element got filled!
-      if (SongElementArray[totalSongs - 1] !== 0) {
-        console.log("FOUND ALL THE SONGS");
-        break;
-      }
+      SongElementArray.shift(); //removing first element as it is always the heading, not song info
 
-      let lastEle = currentViewSongElementList[leng - 1]; //last element
-      lastEle.scrollIntoView();
-      await new Promise(function (resolve) {
-        setTimeout(resolve, 3000);
-      }); //3 second wait
-    }
+      console.log(SongElementArray);
 
-    let songInfoArray = [];
-    // console.log(SongElementArray);
-    SongElementArray.forEach((element) => {
-      let name = element.querySelector(".eyyspMJ_K_t8mHpLP_kP").innerText;
-      let singer = element.querySelector(".rI54qKbHwvJBDpQ5XHRO").innerText;
-      songInfoArray.push({
-        name,
-        singer,
+      SongElementArray.forEach((element) => {
+        let name, singer;
+        try {
+          name = element.querySelector(
+            'a[data-testid="internal-track-link"]'
+          ).innerText;
+        } catch (err) {
+          name = "null";
+        }
+
+        try {
+          singer = element.querySelectorAll("span")[1].innerText;
+        } catch (error) {
+          singer = "null";
+        }
+
+        songInfoArray.push({
+          name,
+          singer,
+        });
       });
+      return songInfoArray;
     });
-    return songInfoArray;
-  });
+  } catch (error) {
+    console.log("There is a issue in getting songs list");
+    console.log(error);
+  }
+  // console.log(songInfoArray);
 };
 
 let getPlaylistInfo = async (page) => {
@@ -107,7 +115,7 @@ let getPlaylistInfo = async (page) => {
 // const getPlaylist = async (url) => {
 module.exports.getPlaylist = async (url) => {
   console.log("opening Chromium.");
-  const browser = await puppeteer.launch({ headless: true, devtools: false });
+  const browser = await puppeteer.launch({ headless: false, devtools: false });
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 1450 });
   await page.setDefaultNavigationTimeout(0);
@@ -116,7 +124,7 @@ module.exports.getPlaylist = async (url) => {
   console.log("opened.");
   // await page.waitForSelector("._cx_B0JpuGl6cJE7YqU1");
   console.log("waiting for 10 seconds to load page.");
-  await page.waitForTimeout(1000 * 10); //10 seconds
+  await page.waitForTimeout(1000 * 4); //10 seconds
   console.log("waiting for 10 seconds complete.");
 
   await getPlaylistInfo(page);
