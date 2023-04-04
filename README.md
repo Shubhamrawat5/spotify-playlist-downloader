@@ -1,5 +1,7 @@
 # spotify-playlist-downloader 🎵
 
+[✔️ Working as of 04-04-2023]
+
 1. Open cmd/console
 2. Clone repo by `git clone https://github.com/Shubhamrawat5/spotify-playlist-downloader.git`
 3. Open directory by `cd spotify-playlist-downloader`
