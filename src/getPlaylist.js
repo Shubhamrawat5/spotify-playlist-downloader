@@ -75,24 +75,24 @@ let getPlaylistList = async (page) => {
       console.log(SongElementArray);
 
       SongElementArray.forEach((element) => {
-        let name, singer;
+        let songName, singerName;
         try {
-          name = element.querySelector(
+          songName = element.querySelector(
             'a[data-testid="internal-track-link"]'
           ).innerText;
         } catch (err) {
-          name = "null";
+          songName = "null";
         }
 
         try {
-          singer = element.querySelectorAll("span")[1].innerText;
+          singerName = element.querySelectorAll("span")[1].innerText;
         } catch (error) {
-          singer = "null";
+          singerName = "null";
         }
 
         songInfoArray.push({
-          name,
-          singer,
+          songName,
+          singerName,
         });
       });
       return songInfoArray;
@@ -140,9 +140,8 @@ module.exports.getPlaylist = async (url) => {
   //   });
   await browser.close();
   return {
-    playlistUser,
-    playlistName,
-    total: songInfoArray.length,
+    playlist: playlistUser,
+    user: playlistName,
     songs: songInfoArray,
   };
 };

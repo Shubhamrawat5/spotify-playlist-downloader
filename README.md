@@ -1,24 +1,23 @@
 # spotify-playlist-downloader 🎵
 
-[✔️ Working as of 04-04-2023]
+[✔️ Working as of 01-09-2023]
 
 1. Open cmd/console
-2. Clone repo by `git clone https://github.com/Shubhamrawat5/spotify-playlist-downloader.git`
-3. Open directory by `cd spotify-playlist-downloader`
-4. Run `npm install` to install all dependencies
+2. Clone repo - `git clone https://github.com/Shubhamrawat5/spotify-playlist-downloader.git`
+3. Open directory - `cd spotify-playlist-downloader`
+4. Install all dependencies - `npm install`
 
-> This uses puppeteer to extract spotify playlist info so it'll download chromium (150-200mb)
+   > This uses puppeteer to extract spotify playlist info so it'll download chromium (150-200mb)
 
-5. Now edit playlist url variable and set your playlist link in file `app.js [line 10]`
-6. Run `node app.js`
+5. Run `npm start`
+6. It'll ask for playlist url, paste it and press enter.
 
-- Now a folder named "songs" will be created.
+Dummy Playlist_URL: `https://open.spotify.com/playlist/6erqXmUhndc9DmQBMsImyY?si=tdOMvOQdR6KAZy9916kXcg&utm_source=copy-link&dl_branch=1&nd=1`
 
+- Now a folder "songs" will be created.
 - Playlist info will be extract and all the matching songs will start donwloading!
-
-- If by chance you stop the script in between, then no worries as if song is already downloaded then next time it won't be downloaded again!
-
-- Also there is 5% chance that song's some remix or different same name song will get downloaded...
+- It'll not download same song again if you rerun the code, So if any song is half downloaded then you can delete it from songs folder.
+- Also there is 5% chance that song's some remix or different same name song will get downloaded... I'll be fixing this soon !
 
 ## Screenshots 🚀
 
