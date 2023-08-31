@@ -4,7 +4,10 @@
   "description": "To download spotify playlist in mp3 format",
   "main": "downloader.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "lint": "npx eslint .",
+    "lint-fix": "npx eslint . --fix"
   },
   "author": "Shubham Rawat",
   "license": "ISC",
@@ -15,5 +18,8 @@
     "progress": "^2.0.3",
     "puppeteer": "^8.0.0",
     "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.48.0"
   }
 }
