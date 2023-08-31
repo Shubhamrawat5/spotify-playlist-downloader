@@ -20,12 +20,12 @@
 
 - Also there is 5% chance that song's some remix or different same name song will get downloaded...
 
-### Screenshots 🚀
+## Screenshots 🚀
 
 <img src = "https://i.ibb.co/ScGmnj3/download-spotify-to-mp3.png" width="350"/>
 <img src = "https://i.ibb.co/0MfLvNy/spo.png" width="800"/>
 
-### Contribute & Issues 🚀
+## Contribute & Issues 🚀
 
-- Feel free to help to improve this tool.
-- Inform if you face any problem.
+- Feel free to Contribute to improve this.
+- Raise an Issue if you face any problem.

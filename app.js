@@ -6,20 +6,22 @@ const request = require("request");
 const NodeID3 = require("node-id3");
 const itunesAPI = require("node-itunes-search");
 
+const { getPlaylist } = require("./src/getPlaylist");
+
 // "https://open.spotify.com/playlist/08khTGVkE7JRDYAoS0KmKb?si=tEdvqhnNQKyolBOHTGKdIA&utm_source=copy-link&dl_branch=1&nd=1";
 const url =
   "https://open.spotify.com/playlist/6erqXmUhndc9DmQBMsImyY?si=tdOMvOQdR6KAZy9916kXcg&utm_source=copy-link&dl_branch=1&nd=1";
 const INFO_URL = "https://slider.kz/vk_auth.php?q=";
-const DOWNLOAD_URL = "https://slider.kz/download/";
+// const DOWNLOAD_URL = "https://slider.kz/download/";
 let index = -1;
-let songsList = [];
-let total = 0;
+let songList = [];
+let totalSongs = 0;
 let notFound = [];
 
 const download = async (song, url, song_name, singer_names) => {
   try {
     let numb = index + 1;
-    console.log(`(${numb}/${total}) Starting download: ${song}`);
+    console.log(`(${numb}/${totalSongs}) Starting download: ${song}`);
     const { data, headers } = await axios({
       method: "GET",
       url: url,
@@ -43,7 +45,7 @@ const download = async (song, url, song_name, singer_names) => {
     data.on("end", () => {
       singer_names = singer_names.replace(/\s{2,10}/g, "");
       console.log("DOWNLOADED!");
-      const filepath = `${__dirname}/songs/${song}.mp3`;
+      const filepath = `./songs/${song}.mp3`;
       //Replace all connectives by a simple ','
       singer_names = singer_names.replace(" and ", ", ");
       singer_names = singer_names.replace(" et ", ", ");
@@ -74,11 +76,7 @@ const download = async (song, url, song_name, singer_names) => {
             /\?|<|>|\*|"|:|\||\/|\\/g,
             ""
           );
-          //console.log(genre);
-          //console.log(year);
-          //console.log(trackNumber);
-          //console.log(album);
-          //console.log(maxres);
+
           let query_artwork_file = song + ".jpg";
           download_artwork(maxres, query_artwork_file, function () {
             //console.log('Artwork downloaded');
@@ -92,7 +90,7 @@ const download = async (song, url, song_name, singer_names) => {
               genre: genre,
             };
             //console.log(tags);
-            const success = NodeID3.write(tags, filepath);
+            NodeID3.write(tags, filepath);
             console.log("WRITTEN TAGS");
             try {
               fs.unlinkSync(query_artwork_file);
@@ -109,8 +107,8 @@ const download = async (song, url, song_name, singer_names) => {
             title: song_name,
             artist: singer_names,
           };
-          //console.log(tags);
-          const success = NodeID3.write(tags, filepath);
+
+          NodeID3.write(tags, filepath);
           console.log("WRITTEN TAGS (Only artist name and track title)");
           startDownloading();
         }
@@ -118,7 +116,7 @@ const download = async (song, url, song_name, singer_names) => {
     });
 
     //for saving in file...
-    data.pipe(fs.createWriteStream(`${__dirname}/songs/${song}.mp3`));
+    data.pipe(fs.createWriteStream(`./songs/${song}.mp3`));
   } catch {
     console.log("some error came!");
     startDownloading(); //for next song!
@@ -162,20 +160,15 @@ const getURL = async (song, singer) => {
   }
 
   let songName = track.tit_art.replace(/\?|<|>|\*|"|:|\||\/|\\/g, ""); //removing special characters which are not allowed in file name
-  if (fs.existsSync(__dirname + "/songs/" + songName + ".mp3")) {
+  if (fs.existsSync(`./songs/${songName}.mp3`)) {
     let numb = index + 1;
     console.log(
-      "(" + numb + "/" + total + ") - Song already present!!!!! " + song
+      "(" + numb + "/" + totalSongs + ") - Song already present!!!!! " + song
     );
     startDownloading(); //next song
     return;
   }
 
-  // let link = DOWNLOAD_URL + track.id + "/";
-  // link = link + track.duration + "/";
-  // link = link + track.url + "/";
-  // link = link + songName + ".mp3" + "?extra=";
-  // link = link + track.extra;
   let link = track.url;
   link = encodeURI(link); //to replace unescaped characters from link
 
@@ -184,7 +177,7 @@ const getURL = async (song, singer) => {
 
 const startDownloading = () => {
   index += 1;
-  if (index === songsList.length) {
+  if (index === songList.length) {
     console.log("\n#### ALL SONGS ARE DOWNLOADED!! ####\n");
     console.log("Songs that are not found:-");
     let i = 1;
@@ -195,60 +188,61 @@ const startDownloading = () => {
     if (i === 1) console.log("None!");
     return;
   }
-  let song = songsList[index].name;
-  let singer = songsList[index].singer;
+  let song = songList[index].name;
+  let singer = songList[index].singer;
   getURL(song, singer);
 };
 
-console.log("STARTING....");
-let playlist = require("./spotify");
+const start = async () => {
+  try {
+    let songPlaylistObj;
+    const platlistFileName = "playlist-info.txt";
 
-const start = () => {
-  //create folder
-  let dir = __dirname + "/songs";
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
+    if (fs.existsSync(`./${platlistFileName}`)) {
+      console.log(
+        "\nPLAYLIST INFO ALREADY EXIST PRESENT LOCALLY ! IF PLAYLIST HAVE SOME CHANGES THEN DELETE THE playlist-info.txt FILE"
+      );
+      console.log("READING PLAYLIST INFO FROM FILE..\n");
+      const data = fs.readFileSync(platlistFileName, {
+        encoding: "utf8",
+        flag: "r",
+      });
+      songPlaylistObj = JSON.parse(data);
+    } else {
+      console.log("\nPLAYLIST INFO DOES NOT EXIST LOCALLY !");
+      console.log(
+        "SAVING PLAYLIST INFO IN FILE.. SO THAT NEXT TIME PLAYLIST INFO WON'T BE EXTRACTED AGAIN!"
+      );
+
+      songPlaylistObj = await getPlaylist(url);
+      songPlaylistObj.url = url; //saving playlist url also
+
+      fs.writeFileSync(
+        platlistFileName,
+        JSON.stringify(songPlaylistObj),
+        (err) => {
+          if (err) throw err;
+          console.log("Saved playlist info locally in playlist-info.txt!");
+        }
+      );
+    }
+
+    console.log("Playlist Name: ", songPlaylistObj.playlist);
+    console.log("User Name: ", songPlaylistObj.user);
+    console.log("Total songs: ", songPlaylistObj.songs.length);
+
+    songList = songPlaylistObj.songs;
+    totalSongs = songPlaylistObj.songs.length;
+
+    //create folder
+    let dir = "./songs";
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    startDownloading();
+  } catch (err) {
+    console.log(err);
   }
-  startDownloading();
 };
 
-const fileName = "playlist-info.txt";
-const path = "./" + fileName;
-let songPlaylistObj;
-if (fs.existsSync(path)) {
-  console.log(
-    "\nPLAYLIST INFO ALREADY EXIST PRESENT LOCALLY ! IF PLAYLIST HAVE SOME CHANGES THEN DELETE THE playlist-info.txt FILE"
-  );
-  console.log("READING PLAYLIST INFO FROM FILE..\n");
-  const data = fs.readFileSync(fileName, { encoding: "utf8", flag: "r" });
-  songPlaylistObj = JSON.parse(data);
-  songsList = songPlaylistObj.songs;
-  total = songPlaylistObj.total;
-  console.log("TOTAL SONGS: " + total);
-  start();
-} else {
-  console.log("\nPLAYLIST INFO DOES NOT EXIST LOCALLY !");
-  console.log(
-    "SAVING PLAYLIST INFO IN FILE.. SO THAT NEXT TIME PLAYLIST INFO WON'T BE EXTRACTED AGAIN!"
-  );
-  playlist.getPlaylist(url).then((res) => {
-    // if (res === "Some Error") {
-    //   //wrong url
-    //   console.log(
-    //     "Error: maybe the url you inserted is not of spotify playlist or check your connection!"
-    //   );
-    //   return;
-    // }
-
-    songPlaylistObj = res;
-    songPlaylistObj.url = url; //saving playlist url also
-    fs.writeFileSync(fileName, JSON.stringify(res), (err) => {
-      if (err) throw err;
-      console.log("Saved playlist info locally in playlist-info.txt!");
-    });
-    // console.log("Total songs:" + total);
-    songsList = songPlaylistObj.songs;
-    total = songPlaylistObj.total;
-    start();
-  });
-}
+start();
