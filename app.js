@@ -167,13 +167,18 @@ const startNextSong = async () => {
     const { songDownloadUrl, songTitleFound } = res;
     if (fs.existsSync(`./songs/${songTitleFound}.mp3`)) {
       console.log(
-        `\n(${index + 1}/${totalSongs}) - Song already present!! ${songName}`
+        `\n(${
+          index + 1
+        }/${totalSongs}) - [ SONG ALREADY PRESENT ] : ${songName}`
       );
       startNextSong(); //next song
       return;
     }
     await downloadSong(songName, singerName, songDownloadUrl, songTitleFound);
   } else {
+    console.log(
+      `\n(${index + 1}/${totalSongs}) - [ SONG NOT FOUND ] : ${songName}`
+    );
     notFound.push(`${songName} - ${singerName}`);
     startNextSong();
   }
