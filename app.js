@@ -3,7 +3,8 @@ const ProgressBar = require("progress");
 const axios = require("axios");
 const prompt = require("prompt");
 const NodeID3 = require("node-id3");
-const itunesAPI = require("node-itunes-search");
+
+const youtubedl = require("youtube-dl-exec");
 
 const { getPlaylist } = require("./src/getPlaylist");
 const { getDownloadLink } = require("./src/getDownloadLink");
@@ -28,126 +29,68 @@ const downloadSong = async (
       responseType: "stream",
     });
 
-    //for progress bar...
-    const totalLength = headers["content-length"];
-    const progressBar = new ProgressBar(
-      "-> downloading [:bar] :percent :etas",
-      {
-        width: 40,
-        complete: "=",
-        incomplete: " ",
-        renderThrottle: 1,
-        total: parseInt(totalLength),
+    var bar = new ProgressBar("[:bar]  :percent :etas ", {
+      total: 45,
+    });
+    var timer = setInterval(function () {
+      bar.tick();
+      if (bar.complete) {
+        console.log(`\n ${songTitleFound} - Downloaded\n`);
+        clearInterval(timer);
       }
-    );
+    }, 100);
 
-    data.on("data", (chunk) => progressBar.tick(chunk.length));
-    data.on("end", () => {
-      console.log("DOWNLOADED!");
-      const filepath = `./songs/${songTitleFound}.mp3`;
-      //Replace all connectives by a simple ','
+    data.on("end", async () => {
       singerName = singerName.replace(/\s{2,10}/g, "");
-      singerName = singerName.replace(" and ", ", ");
-      singerName = singerName.replace(" et ", ", ");
-      singerName = singerName.replace(" und ", ", ");
-      singerName = singerName.replace(" & ", ", ");
-      //Search track informations using the Itunes library
-      const searchOptions = new itunesAPI.ItunesSearchOptions({
-        term: encodeURI(songTitleFound), // All searches require a single string query and remove unescaped characters
-        limit: 1, // An optional maximum number of returned results may be specified.
-      });
-      //Use the result to extract tags
-      itunesAPI.searchItunes(searchOptions).then(async (result) => {
-        try {
-          // Get all the tags and cover art of the track using node-itunes-search and write them with node-id3
-          let songImageUrl = result.results[0]["artworkUrl100"].replace(
-            "100x100",
-            "3000x3000"
-          );
-          let year = result.results[0]["releaseDate"].substring(0, 4);
-          let genre = result.results[0]["primaryGenreName"].replace(
-            /\?|<|>|\*|"|:|\||\/|\\/g,
-            ""
-          );
-          let trackNumber = result.results[0]["trackNumber"];
-          let trackCount = result.results[0]["trackCount"];
-          trackNumber = trackNumber + "/" + trackCount;
-          let album = result.results[0]["collectionName"].replace(
-            /\?|<|>|\*|"|:|\||\/|\\/g,
-            ""
-          );
+      console.log("Song Downloaded!");
 
-          let imageFilePath = songTitleFound + ".jpg";
-          await downloadImage(songImageUrl, imageFilePath);
-          const tags = {
-            TALB: album,
-            title: songName,
-            artist: singerName,
-            APIC: imageFilePath,
-            year: year,
-            trackNumber: trackNumber,
-            genre: genre,
-          };
-
-          NodeID3.write(tags, filepath);
-          console.log("WRITTEN TAGS");
-          try {
-            fs.unlinkSync(imageFilePath);
-          } catch (err) {
-            console.error(err);
-          }
-          startNextSong();
-        } catch (err) {
-          console.log("Full tags not found for " + songName);
-          const tags = {
-            title: songName,
-            artist: singerName,
-          };
-
-          NodeID3.write(tags, filepath);
-          console.log("WRITTEN TAGS (Only artist name and track title)");
-          startNextSong();
-        }
-      });
+      startNextSong();
     });
 
     //for saving in file...
-    data.pipe(fs.createWriteStream(`./songs/${songTitleFound}.mp3`));
-  } catch {
-    console.log("some error came!");
-    startNextSong(); //for next song!
+
+    await youtubedl(songDownloadUrl, {
+      format: "m4a",
+      output: "./songs/" + songTitleFound + ".mp3",
+      maxFilesize: "104857600",
+      preferFreeFormats: true,
+    });
+    startNextSong();
+  } catch (err) {
+    console.log("Error:", err);
+    startNextSong();
   }
 };
 
-const downloadImage = async (songImageUrl, imageFilePath) => {
-  try {
-    const response = await axios({
-      method: "GET",
-      url: songImageUrl,
-      responseType: "stream",
-    });
+// const downloadImage = async (songImageUrl, imageFilePath) => {
+//   try {
+//     const response = await axios({
+//       method: "GET",
+//       url: songImageUrl,
+//       responseType: "stream",
+//     });
 
-    // Create a write stream to save the image
-    const writer = fs.createWriteStream(imageFilePath);
+//     // Create a write stream to save the image
+//     const writer = fs.createWriteStream(imageFilePath);
 
-    // Pipe the response data into the writer stream
-    response.data.pipe(writer);
+//     // Pipe the response data into the writer stream
+//     response.data.pipe(writer);
 
-    // Wait for the image to finish downloading
-    await new Promise((resolve, reject) => {
-      writer.on("finish", resolve);
-      writer.on("error", reject);
-    });
+//     // Wait for the image to finish downloading
+//     await new Promise((resolve, reject) => {
+//       writer.on("finish", resolve);
+//       writer.on("error", reject);
+//     });
 
-    console.log("Image downloaded!");
-  } catch (error) {
-    console.error("Error downloading image:", error.message);
-  }
-};
+//     console.log("Image downloaded!");
+//   } catch (error) {
+//     console.error("Error downloading image:", error.message);
+//   }
+// };
 
 const startNextSong = async () => {
   index += 1;
-  if (index === songList.length) {
+  if (index === totalSongs) {
     console.log("\n#### ALL SONGS ARE DOWNLOADED!! ####\n");
     console.log("Songs that are not found:-");
     let i = 1;
@@ -159,7 +102,7 @@ const startNextSong = async () => {
     return;
   }
 
-  const { songName, singerName } = songList[index];
+  const { songName, singerName, songDurationSec } = songList[index];
 
   const res = await getDownloadLink(songName, singerName);
 
@@ -174,7 +117,13 @@ const startNextSong = async () => {
       startNextSong(); //next song
       return;
     }
-    await downloadSong(songName, singerName, songDownloadUrl, songTitleFound);
+    await downloadSong(
+      songName,
+      singerName,
+      songDownloadUrl,
+      songTitleFound,
+      songDurationSec
+    );
   } else {
     console.log(
       `\n(${index + 1}/${totalSongs}) - [ SONG NOT FOUND ] : ${songName}`
